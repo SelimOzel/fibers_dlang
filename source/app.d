@@ -34,16 +34,4 @@ void main() {
         auto f_1 = spawn( &DatabaseProgram );
         auto f_2 = spawn( &Program_1 );
     });
-
-/*
-	writeln("[main] Fiber application.");
-	Fiber f_1 = new Fiber( &DatabaseProgram );
-	Fiber f_2 = new Fiber( &Program_1 );
-
-	while(true) {
-		f_1.call();
-		f_2.call();
-		send(f_2, 2);
-	}
-*/
 }
