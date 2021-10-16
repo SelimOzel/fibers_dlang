@@ -1,0 +1,5 @@
+name "fibers_dlang"
+description "trying to understand fibers"
+authors "sozel"
+copyright "Copyright © 2021, sozel"
+license "proprietary"

@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/fibers_dlang
+fibers_dlang.so
+fibers_dlang.dylib
+fibers_dlang.dll
+fibers_dlang.a
+fibers_dlang.lib
+fibers_dlang-test-*
+*.exe
+*.o
+*.obj
+*.lst
