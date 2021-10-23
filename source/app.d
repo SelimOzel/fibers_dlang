@@ -2,32 +2,31 @@ import std.stdio;
 import std.concurrency;
 import core.thread;
 
+struct Done {}
+
 void MessageHandler() {
-	while(true) {
-		receive( 
-			(int message) {writeln(message);} 
-		);
+	bool done = false;
+	while(!done) {
 		writeln("[MessageHandler] message manager update.");
+		// non-blocking receive
+		receiveTimeout(-1.seconds,
+			(int message) {writeln(message);},
+			(Done message) {done = true;}
+		);
 	}
 }
 
-void DatabaseProgram(Tid msg_handler_TiD) {
+void DatabaseProgram(Tid msg_handler_TiD, Tid parent_TiD) {
 	writeln("[DatabaseProgram] upload bulk data. one time.");
-	int number_of_calls = 0;
-    Fiber.yield();
-    while(true) {
+    for (int i = 0; i<3; i++) {
     	writeln("[DatabaseProgram] tried to update data. once per day.");
-    	number_of_calls += 1;
-    	send(msg_handler_TiD, 13);
-    	if(number_of_calls == 5) {
-    		writeln("[DatabaseProgram] Fifth update of the day.");
-    		number_of_calls = 0;
-    		string msg = "database_updated";
-    		
-    		Thread.sleep( 1.seconds );
-    	}
-    	Fiber.yield();
+    	send(msg_handler_TiD, i);
+    	Thread.sleep( 1.seconds );
     }
+
+    // Terminate all threads and end program
+    send(msg_handler_TiD, Done());
+    send(parent_TiD, Done());
 }
 
 void main() {
@@ -36,8 +35,11 @@ void main() {
     {
         writeln("[main] Fiber application.");
         auto f_0 = spawn( &MessageHandler );
-        auto f_1 = spawn( &DatabaseProgram, f_0 );
-        send(f_0, 13);
-        send(f_0, 17);
+        auto f_1 = spawn( &DatabaseProgram, f_0, thisTid );
+        bool done = false;
+        while(!done) {
+        	receiveTimeout(-1.seconds, (Done message) {done = true;});
+        	Thread.sleep( 1.seconds );
+        }
     });
 }
